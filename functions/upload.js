@@ -18,8 +18,8 @@ function isValidAuthCode(envAuthCode, authCode) {
     let newCode = decode(authCode);
     let [code, timestamp] = newCode.split("-");
     if (!timestamp || !code) return false;
-    if (timestamp < Date.now() - 1000 * 60 * 10) return false;
-    return authCode === envAuthCode;
+    if (timestamp < Date.now() - 1000 * 60 * 30) return false;
+    return code === envAuthCode;
 }
 
 function isAuthCodeDefined(authCode) {
