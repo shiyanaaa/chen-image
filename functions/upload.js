@@ -35,6 +35,7 @@ function getCookieValue(cookies, name) {
 export async function onRequestPost(context) {  // Contents of context object
     const { request, env, params, waitUntil, next, data } = context;
     const url = new URL(request.url);
+    const oldUrl=url.origin;
     // 优先从请求 URL 获取 authCode
     let authCode = url.searchParams.get('authCode');
     // 如果 URL 中没有 authCode，从 Referer 中获取
@@ -82,7 +83,13 @@ export async function onRequestPost(context) {  // Contents of context object
         body: clonedRequest.body,
     });
     // 修改响应体
-    const res=await response.json();
+    let res=await response.json();
+    res=res.map(item=>{
+        return {
+            ...item,
+            src:oldUrl+item.src
+        }
+    })
     return new Response(JSON.stringify(res), {
         status: response.status,
         statusText: response.statusText,
