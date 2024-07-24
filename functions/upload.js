@@ -83,7 +83,7 @@ export async function onRequestPost(context) {  // Contents of context object
     });
     // 修改响应体
     const res=await response.json();
-    return new Response(res, {
+    return new Response(JSON.stringify(res), {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers,
