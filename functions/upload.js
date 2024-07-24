@@ -1,5 +1,5 @@
 import { errorHandling, telemetryData } from "./utils/middleware";
-
+import { encode, decode } from "./utils/base64.min";
 function UnauthorizedException(reason) {
     return new Response(reason, {
         status: 401,
@@ -15,6 +15,10 @@ function UnauthorizedException(reason) {
 }
 
 function isValidAuthCode(envAuthCode, authCode) {
+    let newCode = decode(authCode);
+    let [code, timestamp] = newCode.split("-");
+    if (!timestamp || !code) return false;
+    if (timestamp < Date.now() - 1000 * 60 * 10) return false;
     return authCode === envAuthCode;
 }
 
@@ -77,5 +81,11 @@ export async function onRequestPost(context) {  // Contents of context object
         headers: headers,
         body: clonedRequest.body,
     });
-    return response;
+    // 修改响应体
+    const res=await response.json();
+    return new Response(res, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+    });
 }
