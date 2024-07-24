@@ -1,4 +1,7 @@
 import { encode, decode } from "./utils/base64.min";
+function isAuthCodeDefined(authCode) {
+  return authCode !== undefined && authCode !== null && authCode.trim() !== '';
+}
 function isValidAuthCode(envAuthCode, authCode) {
   let newCode = decode(authCode);
   let [code, timestamp] = newCode.split("-");
@@ -6,7 +9,10 @@ function isValidAuthCode(envAuthCode, authCode) {
   if (timestamp < Date.now() - 1000 * 60 * 30) return false;
   return code === envAuthCode;
 }
-
+function getCookieValue(cookies, name) {
+  const match = cookies.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
 function UnauthorizedException(reason) {
   return new Response(reason, {
       status: 401,
@@ -23,7 +29,7 @@ function UnauthorizedException(reason) {
 
 
 export function onRequestPost({ request}) {
-  return new Response(request.url,{status:200});
+  
   const url = new URL(request.url);
   let authCode = url.searchParams.get('authCode');
     // 如果 URL 中没有 authCode，从 Referer 中获取
